@@ -2,17 +2,18 @@
 #include <stdint.h>
 
 static uint32_t MMIO_BASE;
+static int RPI;
 
 // Setting up the MMIO base, depends on board type.
-static inline void mmio_init(int rpi)
+static inline void mmio_init(uint32_t reg)
 {
-  switch (rpi)
-  {
-    case 2:
-    case 3:  MMIO_BASE = 0x3F000000; break; // rpi2 & 3
-    case 4:  MMIO_BASE = 0xFE000000; break; // rpi4
-    default: MMIO_BASE = 0x20000000; break; // rpi1 & zero etc.
-  }
+    switch ((reg >> 4) & 0xFFF) {
+        case 0xB76: RPI = 1; MMIO_BASE = 0x20000000; break;
+        case 0xC07: RPI = 2; MMIO_BASE = 0x3F000000; break;
+        case 0xD03: RPI = 3; MMIO_BASE = 0x3F000000; break;
+        case 0xD08: RPI = 4; MMIO_BASE = 0xFE000000; break;
+        default:    RPI =-1; MMIO_BASE = 0x20000000; break;
+    }
 }
 
 // MMIO
@@ -80,9 +81,17 @@ volatile unsigned int __attribute__((aligned(16))) mbox[9] = {
     9*4, 0, 0x38002, 12, 8, 2, 3000000, 0, 0
 };
 
-void uart_init(int rpi)
+void uart_init()
 {
-    mmio_init(rpi);
+    uint32_t reg;
+
+    #if __AARCH64__
+        asm volatile ("mrs %x0, midr_el1" : "=r" (reg));
+    #else
+        asm volatile ("mrc p15,0,%0,c0,c0,0" : "=r" (reg));
+    #endif
+
+    mmio_init(reg)
 
     // Disable UART0.
     mmio_write(UART0_CR, 0x00000000);
@@ -156,8 +165,7 @@ void kernel_main(uint64_t dtb_ptr32, uint64_t x1, uint64_t x2, uint64_t x3)
 void kernel_main(uint32_t r0, uint32_t r1, uint32_t atargs)
 #endif
 {
-    // init UART for rpi2
-    uart_init(2);
+    uart_init();
     uart_puts("Hello, kernel!\r\n");
 
     while (1)
