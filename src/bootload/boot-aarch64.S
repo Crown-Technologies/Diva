@@ -28,5 +28,5 @@ _start:
  
     // jump to C code, should not return
 4:  bl      kernel_main
-    // for failsafe, halt this core too
-    b 1b
+    // halt
+    wfi

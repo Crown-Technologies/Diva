@@ -4,7 +4,6 @@ SECTIONS
 {
     /* Starts at LOADER_ADDR. */
     . = 0x80000;
-    /* For AArch64, use . = 0x80000; */
     __start = .;
     __text_start = .;
     .text :

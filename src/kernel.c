@@ -8,8 +8,6 @@ static int RPI;
 static inline void mmio_init(uint32_t reg)
 {
     switch ((reg >> 4) & 0xFFF) {
-        case 0xB76: RPI = 1; MMIO_BASE = 0x20000000; break;
-        case 0xC07: RPI = 2; MMIO_BASE = 0x3F000000; break;
         case 0xD03: RPI = 3; MMIO_BASE = 0x3F000000; break;
         case 0xD08: RPI = 4; MMIO_BASE = 0xFE000000; break;
         default:    RPI =-1; MMIO_BASE = 0x20000000; break;
@@ -30,7 +28,7 @@ static inline uint32_t mmio_read(uint32_t reg)
 // Loop <delay> times in a way that the compiler won't optimize away.
 static inline void delay(int32_t count)
 {
-    asm volatile("__delay_%=: subs %[count], #1; bne __delay_%=\n"
+    asm volatile("__delay_%=: subs %[count], %[count], #1; bne __delay_%=\n"
             : "=r" (count): [count]"0"(count) : "cc");
 }
 
@@ -85,13 +83,9 @@ void uart_init()
 {
     uint32_t reg;
 
-    #if __AARCH64__
-        asm volatile ("mrs %x0, midr_el1" : "=r" (reg));
-    #else
-        asm volatile ("mrc p15,0,%0,c0,c0,0" : "=r" (reg));
-    #endif
+    asm volatile ("mrs %x0, midr_el1" : "=r" (reg));
 
-    mmio_init(reg)
+    mmio_init(reg);
 
     // Disable UART0.
     mmio_write(UART0_CR, 0x00000000);
@@ -111,7 +105,7 @@ void uart_init()
     // Clear pending interrupts.
     mmio_write(UART0_ICR, 0x7FF);
 
-    if (rpi >= 3) {
+    if (RPI >= 3) {
         // UART_CLOCK = 30000000;
         unsigned int r = (((unsigned int)(&mbox) & ~0xF) | 8);
         // wait until we can talk to the VC
@@ -159,11 +153,8 @@ void uart_puts(const char* str)
 extern "C" // Use C linkage for kernel_main.
 #endif
 
-#ifdef AARCH64
+
 void kernel_main(uint64_t dtb_ptr32, uint64_t x1, uint64_t x2, uint64_t x3)
-#else
-void kernel_main(uint32_t r0, uint32_t r1, uint32_t atargs)
-#endif
 {
     uart_init();
     uart_puts("Hello, kernel!\r\n");
