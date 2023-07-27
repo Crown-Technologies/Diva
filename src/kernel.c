@@ -1,7 +1,11 @@
 #include <stdint.h>
 
-#include "uart.h"
-#include "mbox.h"
+#include "stdval.h"
+
+#include "uart/uart.h"
+#include "uart/mbox.h"
+#include "uart/rand.h"
+#include "uart/system/system.h"
 
 
 #if defined(__cplusplus)
@@ -12,28 +16,21 @@ extern "C" // Use C linkage for kernel_main.
 void kernel_main(uint64_t dtb_ptr32, uint64_t x1, uint64_t x2, uint64_t x3)
 {
     uart_init();
-    
-    // get the board's unique serial number with a mailbox call
-    mbox[0] = 8*4;                  // length of the message
-    mbox[1] = MBOX_REQUEST;         // this is a request message
-    
-    mbox[2] = MBOX_TAG_GETSERIAL;   // get serial number command
-    mbox[3] = 8;                    // buffer size
-    mbox[4] = 8;
-    mbox[5] = 0;                    // clear output buffer
-    mbox[6] = 0;
+    rand_init();
 
-    mbox[7] = MBOX_TAG_LAST;
+    
+    uart_puts("SoC serial number: ");
+    unsigned long serial = get_serial();
+    uart_hex(serial >> 36);
+    uart_hex(serial);
+    uart_puts("\n");
 
-    // send the message to the GPU and receive answer
-    if (mbox_call(MBOX_CH_PROP)) {
-        uart_puts("My serial number is: ");
-        uart_hex(mbox[6]);
-        uart_hex(mbox[5]);
-        uart_puts("\n");
-    } else {
-        uart_puts("Unable to query serial!\n");
-    }
+    #ifndef NDEBUG
+    uart_puts("[test] random: ");
+    uart_hex(rand());
+    uart_puts("\n");
+    #endif
+
 
     // echo everything back
     while(1) {

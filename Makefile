@@ -1,4 +1,4 @@
-SRCS = $(wildcard src/*.c)
+SRCS = $(shell find src -name *.c)
 OBJS = $(SRCS:.c=.o)
 CFLAGS = -Wall -O2 -ffreestanding -nostdlib -nostartfiles
 CC_DIR = $(HOME)/opt/cross/bin
@@ -19,4 +19,4 @@ clean:
 	rm bin/kernel.elf *.o >/dev/null 2>/dev/null || true
 
 run:
-	qemu-system-aarch64 -M raspi3b -kernel bin/kernel-aarch64.img -serial null -serial stdio
+	qemu-system-aarch64 -M raspi3b -kernel bin/kernel-aarch64.img -serial stdio

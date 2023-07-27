@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "stdval.h": "c",
+        "uart.h": "c"
+    }
+}
