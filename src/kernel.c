@@ -1,6 +1,6 @@
 #include <stdint.h>
 
-#include "stdval.h"
+#include "std/val.h"
 
 #include "uart/uart.h"
 #include "uart/mbox.h"
@@ -32,7 +32,7 @@ void kernel_main(uint64_t dtb_ptr32, uint64_t x1, uint64_t x2, uint64_t x3)
     uart_puts("\n");
 
 
-    uart_puts("[test] waiting 1000000 microsec: ");
+    uart_puts("[test] waiting 1000000 ms: ");
     wait_ms(1000000);
     uart_puts("OK\n");
     #endif
