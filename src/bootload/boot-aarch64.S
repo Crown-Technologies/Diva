@@ -17,16 +17,19 @@ _start:
     // set stack before our code
     ldr     x5, =_start
     mov     sp, x5
- 
+    
     // clear bss
     ldr     x5, =__bss_start
     ldr     w6, =__bss_size
-3:  cbz     w6, 4f
+1:  cbz     w6, 2f
     str     xzr, [x5], #8
     sub     w6, w6, #1
-    cbnz    w6, 3b
+    cbnz    w6, 1b
  
     // jump to C code, should not return
-4:  bl      kernel_main
-    // halt
-    wfi
+2:  bl      kernel_main
+    // for failsafe, halt this core
+halt:
+    wfe
+    b halt
+    
