@@ -1,6 +1,9 @@
 {
     "files.associations": {
         "stdval.h": "c",
-        "uart.h": "c"
+        "uart.h": "c",
+        "val.h": "c",
+        "time.h": "c",
+        "mbox.h": "c"
     }
 }

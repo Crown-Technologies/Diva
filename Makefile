@@ -17,7 +17,7 @@ kernel-aarch64.img: tmp/boot.o $(OBJS)
 
 clean:
 	for obj in $(OBJS); do \
-		rm $$obj; \
+		rm $$obj || true; \
 	done;
 	rm bin/kernel.elf >/dev/null 2>/dev/null || true
 
