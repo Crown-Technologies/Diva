@@ -5,6 +5,7 @@
 #include "uart/uart.h"
 #include "uart/mbox.h"
 #include "uart/rand.h"
+#include "uart/time.h"
 #include "uart/system/system.h"
 
 
@@ -29,6 +30,11 @@ void kernel_main(uint64_t dtb_ptr32, uint64_t x1, uint64_t x2, uint64_t x3)
     uart_puts("[test] random: ");
     uart_hex(rand());
     uart_puts("\n");
+
+
+    uart_puts("[test] waiting 1000000 microsec: ");
+    wait_ms(1000000);
+    uart_puts("OK\n");
     #endif
 
 

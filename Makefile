@@ -16,7 +16,10 @@ kernel-aarch64.img: tmp/boot.o $(OBJS)
 	$(CC_DIR)/aarch64-none-elf-objcopy -O binary bin/kernel.elf bin/kernel-aarch64.img
 
 clean:
-	rm bin/kernel.elf *.o >/dev/null 2>/dev/null || true
+	for obj in $(OBJS); do \
+		rm $$obj; \
+	done;
+	rm bin/kernel.elf >/dev/null 2>/dev/null || true
 
 run:
 	qemu-system-aarch64 -M raspi3b -kernel bin/kernel-aarch64.img -serial stdio
