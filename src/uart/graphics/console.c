@@ -13,12 +13,8 @@ void console_printf(char *fmt, ...) {
     // use sprintf to format our string
     vsprintf(s,fmt,args);
     // print out as usual
-    while(*s) {
-        // convert newline to carrige return + newline
-        //if(*s=='\n')
-            //uart_send('\r');
-        //uart_send(*s++);
-    }
+    fb_print(10, 10, s);
+    
 }
 
 
