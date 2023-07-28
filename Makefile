@@ -29,4 +29,5 @@ clean:
 	rm bin/kernel.elf >/dev/null 2>/dev/null || true
 
 run:
-	qemu-system-aarch64 -M raspi3b -kernel bin/kernel-aarch64.img -serial stdio
+	qemu-system-aarch64 -M raspi3b -kernel bin/kernel-aarch64.img \
+	-drive file=data/test.dd,if=sd,format=raw -serial stdio

@@ -6,6 +6,7 @@
         "time.h": "c",
         "mbox.h": "c",
         "framebuffer.h": "c",
-        "console.h": "c"
+        "console.h": "c",
+        "blk.h": "c"
     }
 }

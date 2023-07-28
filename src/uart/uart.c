@@ -104,6 +104,33 @@ void uart_hex(unsigned int d) {
 }
 
 
+/**
+ * Dump memory
+ */
+void uart_dump(void *ptr)
+{
+    unsigned long a,b,d;
+    unsigned char c;
+    for(a=(unsigned long)ptr;a<(unsigned long)ptr+512;a+=16) {
+        uart_hex(a); uart_puts(": ");
+        for(b=0;b<16;b++) {
+            c=*((unsigned char*)(a+b));
+            d=(unsigned int)c;d>>=4;d&=0xF;d+=d>9?0x37:0x30;uart_send(d);
+            d=(unsigned int)c;d&=0xF;d+=d>9?0x37:0x30;uart_send(d);
+            uart_send(' ');
+            if(b%4==3)
+                uart_send(' ');
+        }
+        for(b=0;b<16;b++) {
+            c=*((unsigned char*)(a+b));
+            uart_send(c<32||c>=127?'.':c);
+        }
+        uart_send('\r');
+        uart_send('\n');
+    }
+}
+
+
 void uart_printf(char *fmt, ...) {
     __builtin_va_list args;
     __builtin_va_start(args, fmt);
