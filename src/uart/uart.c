@@ -11,6 +11,8 @@
 #define UART0_IMSC      ((volatile unsigned int*)(MMIO_BASE+0x00201038))
 #define UART0_ICR       ((volatile unsigned int*)(MMIO_BASE+0x00201044))
 
+extern volatile unsigned char _end;
+
 /**
  * Set baud rate and characteristics (115200 8N1) and map to GPIO
  */
@@ -98,5 +100,23 @@ void uart_hex(unsigned int d) {
         // 0-9 => '0'-'9', 10-15 => 'A'-'F'
         n+=n>9?0x37:0x30;
         uart_send(n);
+    }
+}
+
+
+void uart_printf(char *fmt, ...) {
+    __builtin_va_list args;
+    __builtin_va_start(args, fmt);
+    // we don't have memory allocation yet, so we
+    // simply place our string after our code
+    char *s = (char*)&_end;
+    // use sprintf to format our string
+    vsprintf(s,fmt,args);
+    // print out as usual
+    while(*s) {
+        /* convert newline to carrige return + newline */
+        if(*s=='\n')
+            uart_send('\r');
+        uart_send(*s++);
     }
 }

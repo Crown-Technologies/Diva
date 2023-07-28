@@ -4,6 +4,8 @@
         "uart.h": "c",
         "val.h": "c",
         "time.h": "c",
-        "mbox.h": "c"
+        "mbox.h": "c",
+        "framebuffer.h": "c",
+        "console.h": "c"
     }
 }
