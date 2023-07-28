@@ -10,6 +10,7 @@
 #include "uart/graphics/framebuffer.h"
 #include "uart/graphics/console.h"
 #include "uart/system/devices/blk.h"
+#include "uart/system/devices/fs/fat.h"
 
 #define NTESTS
 
@@ -36,16 +37,14 @@ void kernel_main(uint64_t dtb_ptr32, uint64_t x1, uint64_t x2, uint64_t x3)
 
     //console_printf("Hello World!\n hello");
     //console_printf("Hello 多种语言 Многоязычный többnyelvű World!");
-
-    if (dev_init() == DEV_OK)
-        if (dev_readblk(0, &_end, 1))
-            uart_dump(&_end);
-        else
-            uart_printf("Failed to read blk\n");
-    else
-        uart_printf("Failed to init device\n");
-
+    
     #ifndef NTESTS
+    uart_printf("[test] blk deivces\n")
+        if (dev_init() == DEV_OK)
+            if (fat_getpartition())
+                fat_listdirectory();
+            else uart_printf("FAT partition not found???\n");
+        else uart_printf("Failed to init device\n");
     uart_printf("[test] random: %x\n", rand());
     #endif
 
