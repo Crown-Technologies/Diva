@@ -1,3 +1,4 @@
+extern volatile unsigned char _data;
 extern volatile unsigned char _end;
 
 void uart_init();

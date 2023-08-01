@@ -20,10 +20,10 @@ void uart_init()
 {
     register unsigned int r;
 
-    /* initialize UART */
+    // initialize UART
     *UART0_CR = 0;         // turn off UART0
 
-    /* set up clock for consistent divisor values */
+    // set up clock for consistent divisor values
     mbox[0] = 9*4;
     mbox[1] = MBOX_REQUEST;
     mbox[2] = MBOX_TAG_SETCLKRATE; // set clock rate
@@ -35,7 +35,7 @@ void uart_init()
     mbox[8] = MBOX_TAG_LAST;
     mbox_call(MBOX_CH_PROP);
 
-    /* map UART0 to GPIO pins */
+    // map UART0 to GPIO pins
     r=*GPFSEL1;
     r&=~((7<<12)|(7<<15)); // gpio14, gpio15
     r|=(4<<12)|(4<<15);    // alt0
