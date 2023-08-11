@@ -44,6 +44,12 @@ check_el2:
     orr     x0, x0, #3
     msr     cnthctl_el2, x0
     msr     cntvoff_el2, xzr
+    // disable coprocessor traps
+    /*mov     x0, #0x33FF
+    msr     cptr_el2, x0
+    msr     hstr_el2, xzr
+    mov     x0, #(3 << 20)
+    msr     cpacr_el1, x0*/
     // enable AArch64 in EL1
     mov     x0, #(1 << 31)      // AArch64
     orr     x0, x0, #(1 << 1)   // SWIO hardwired on Pi3
@@ -81,7 +87,6 @@ kmain:
 
     // for failsafe, halt this core
     b       halt
-
 
     // important, code has to be properly aligned
     .align 11
@@ -121,4 +126,3 @@ _vectors:
     mrs     x3, spsr_el1
     mrs     x4, far_el1
     b       exc_handler
-

@@ -1,1 +1,0 @@
-void console_printf(char *fmt, ...);

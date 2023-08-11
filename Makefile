@@ -1,6 +1,7 @@
 SRCS = $(shell find src -name *.c)
 OBJS = $(SRCS:.c=.o)
 CFLAGS = -Wall -O2 -ffreestanding -nostdlib -nostartfiles
+CFLAGS += -I include/
 CC_DIR = $(HOME)/opt/cross/bin
 
 all: clean kernel-aarch64.img
@@ -29,5 +30,9 @@ clean:
 	rm bin/kernel.elf >/dev/null 2>/dev/null || true
 
 run:
-	qemu-system-aarch64 -M raspi3b -kernel bin/kernel-aarch64.img \
-	-drive file=data/test.dd,if=sd,format=raw -serial stdio
+	qemu-system-aarch64 \
+		-M raspi3b \
+		-kernel bin/kernel-aarch64.img \
+		-serial stdio \
+		-m 1024 \
+		-drive file=data/test.dd,if=sd,format=raw
