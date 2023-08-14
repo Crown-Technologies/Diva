@@ -3,83 +3,83 @@
 #include <stdlib/mem.h>
 #include <spinlock.h>
 #include <diva/kernel.h>
-#include <driver/uart.h>
+#include <stdlib/time.h>
 #include "mmu.h"
 
+#include <driver/uart.h>
 
 extern volatile u8 _end;
 
-#define HEAP_START   (u64)&_end
+#define HEAP_START   (u64)&_end + 0x100000
 #define OFFSET_END   0xffb000    /* 15 MB */
-#define HEAP_END     (1024*1024*16)//(1024 * 1024 * 1024 - OFFSET_END)   /* 1024 MB */
+#define HEAP_END     (1024 * 1024 * 1024 - OFFSET_END)   /* 1024 MB */
 
-#define SECTIONSIZE  (2 * 1024 * 1024) /* 2MB */
-
-
-struct header {
-    struct header *next;
-};
-
-struct kallocator {
-    struct spinlock lk;
-    struct header *freelist;
-} kallocator;
+#define SECTIONSIZE  (512 * 1024) /* 512KB */
+#define MAX_ALLOC_ALLOWED 5
 
 
-void *kalloc() {
-    acquire(&kallocator.lk);
+struct kalloc_info {
+    u64 addr;
+    u64 size; 
+} kalloc_info[MAX_ALLOC_ALLOWED];
 
-    struct header *new = kallocator.freelist;
-    if (!new) {
+struct spinlock kalloc_lk;
+
+
+void *kmalloc(unsigned long long size) {
+
+    acquire(&kalloc_lk);
+    
+    u64 addr = HEAP_START;
+
+    for (u16 i = 0; i < MAX_ALLOC_ALLOWED; i++) {
+        if (kalloc_info[i].addr != 0 &&
+            (addr <= kalloc_info[i].addr < addr + size ||
+            addr <= kalloc_info[i].addr + kalloc_info[i].size < addr + size)) {
+                addr = kalloc_info[i].addr + kalloc_info[i].size;
+            }
+    }
+
+    if (addr + size > HEAP_END) {
+        release(&kalloc_lk);
         return NULL;
     }
 
-    kallocator.freelist = new->next;
+    for (u16 i = 0; i < MAX_ALLOC_ALLOWED; i++) {
+        if (kalloc_info[i].addr == 0) {
+            kalloc_info[i].addr = addr;
+            kalloc_info[i].size = size;
 
-    release(&kallocator.lk);
+            release(&kalloc_lk);
 
-    bzero((char*) new, PAGESIZE);
-    
-    return (void*) new;
+            return (void*) addr;
+        }
+    }
+
+    release(&kalloc_lk);
+
+    return NULL;
 }
 
 
 void kfree(void *va) {
     if (va == NULL)
         return;
-    if ((unsigned long long) va % PAGESIZE != 0)
-        panic("bad va");
 
-    bzero(va, PAGESIZE);
-    
-    struct header *p = (struct header *) va;
+    acquire(&kalloc_lk);
 
-    acquire(&kallocator.lk);
+    for (u16 i = 0; i < MAX_ALLOC_ALLOWED; i++)
+        if (va == (void*) kalloc_info[i].addr)
+            kalloc_info[i].addr = 0;
 
-
-    p->next = kallocator.freelist;
-    kallocator.freelist = p;
-
-    release(&kallocator.lk);
-}
-
-
-static inline u64 ksecend() {
-    return (HEAP_START + SECTIONSIZE - 1) & ~(SECTIONSIZE - 1);
+    release(&kalloc_lk);
 }
 
 
 void premmu_alloc_init() {
-    lock_init(&kallocator.lk);
-    kallocator.freelist = NULL;
-
-    for (u8 *p = HEAP_START; p + PAGESIZE <= (u8*) ksecend(); p += PAGESIZE)
-        kfree(p);
-}
-
-
-void posmmu_alloc_init() {
-    for (u8 *p = (u8*) ksecend(); p + PAGESIZE <= (u8*) HEAP_END; p += PAGESIZE)
-        kfree(p);
+    kalloc_info[0].size = 0;
+    kalloc_info[0].addr = HEAP_START;
+    for (u16 i = 1; i < MAX_ALLOC_ALLOWED; i++)
+        kalloc_info[i].addr = 0;
 }
 

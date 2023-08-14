@@ -20,11 +20,10 @@ void enable_sh() {
 
 
 void kprint(const char* s) {
-    if (sh_enabled) {
+    if (sh_enabled)
         sh_puts(s);
-    } else {
+    else
         uart_puts(s);
-    }
 }
 
 void kprintln(const char* s) {

@@ -3,6 +3,7 @@
 
 #include <driver/mbox.h>
 #include <stdlib/time.h>
+#include <ntypes.h>
 
 
 typedef struct {
@@ -35,9 +36,6 @@ typedef struct {
     unsigned int   cmap_offs;
 } __attribute__((packed)) sfn_t;
 extern volatile unsigned char _binary_src_uart_graphics_fonts_font_sfn_start;
-
-
-
 
 
 unsigned int width, height, pitch, isrgb;   /* dimensions and channel order */
@@ -204,5 +202,11 @@ void fb_proprint(int x, int y, char *s)
         }
         // add advances
         x += chr[4]+1; y += chr[5];
+    }
+}
+
+void fb_flush() {
+    for (u32 fb_offset = 0; fb_offset < width * height; fb_offset++) {
+        fb[fb_offset] = 0x00;
     }
 }

@@ -1,6 +1,8 @@
 #include <driver/uart.h>
 #include <driver/blk.h>
 
+#include "../log.h"
+
 extern volatile unsigned char _end;
 
 static unsigned int partitionlba = 0;
@@ -43,7 +45,6 @@ typedef struct {
     unsigned int    size;
 } __attribute__((packed)) fatdir_t;
 
-
 /**
  * Get the starting LBA address of the first partition
  * so that we know where our FAT file system starts, and
@@ -57,37 +58,37 @@ int fat_getpartition(void)
     if(dev_readblk(0,&_end,1)) {
         // check magic
         if(mbr[510]!=0x55 || mbr[511]!=0xAA) {
-            uart_puts("ERROR: Bad magic in MBR\n");
+            blklog("ERROR: Bad magic in MBR\n");
             return 0;
         }
         // check partition type
         if(mbr[0x1C2]!=0xE/*FAT16 LBA*/ && mbr[0x1C2]!=0xC/*FAT32 LBA*/) {
-            uart_puts("ERROR: Wrong partition type\n");
+            blklog("ERROR: Wrong partition type\n");
             return 0;
         }
-        uart_puts("MBR disk identifier: ");
-        uart_hex(*((unsigned int*)((unsigned long)&_end+0x1B8)));
-        uart_puts("\nFAT partition starts at: ");
+        blklog("MBR disk identifier: ");
+        blklogh(*((unsigned int*)((unsigned long)&_end+0x1B8)));
+        blklog("\nFAT partition starts at: ");
         // should be this, but compiler generates bad code...
         //partitionlba=*((unsigned int*)((unsigned long)&_end+0x1C6));
         partitionlba=mbr[0x1C6] + (mbr[0x1C7]<<8) + (mbr[0x1C8]<<16) + (mbr[0x1C9]<<24);
-        uart_hex(partitionlba);
-        uart_puts("\n");
+        blklogh(partitionlba);
+        blklog("\n");
         // read the boot record
         if(!dev_readblk(partitionlba,&_end,1)) {
-            uart_puts("ERROR: Unable to read boot record\n");
+            blklog("ERROR: Unable to read boot record\n");
             return 0;
         }
         // check file system type. We don't use cluster numbers for that, but magic bytes
         if( !(bpb->fst[0]=='F' && bpb->fst[1]=='A' && bpb->fst[2]=='T') &&
             !(bpb->fst2[0]=='F' && bpb->fst2[1]=='A' && bpb->fst2[2]=='T')) {
-            uart_puts("ERROR: Unknown file system type\n");
+            blklog("ERROR: Unknown file system type\n");
             return 0;
         }
-        uart_puts("FAT type: ");
+        blklog("FAT type: ");
         // if 16 bit sector per fat is zero, then it's a FAT32
-        uart_puts(bpb->spf16>0?"FAT16":"FAT32");
-        uart_puts("\n");
+        blklog(bpb->spf16>0?"FAT16":"FAT32");
+        blklog("\n");
         return 1;
     }
     return 0;
