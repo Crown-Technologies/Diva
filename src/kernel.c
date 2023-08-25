@@ -29,8 +29,10 @@ extern "C" // Use C linkage for kernel_main.
 
 void kernel_main(uint64_t dtb_ptr32, uint64_t x1, uint64_t x2, uint64_t x3)
 {
+    u8 el = 0;
+
     kprint("[info] current EL is: ");
-    kprintln(htoa(get_el()));
+    kprintln((el = get_el()) == 1 ? "1 (kernel mode)" : htoa(el));
 
     ///// Start init
     kprint("[init] UART0...");
@@ -50,23 +52,29 @@ void kernel_main(uint64_t dtb_ptr32, uint64_t x1, uint64_t x2, uint64_t x3)
 
     kprint("[info] board serial number: ");
     u32 board_serial = get_serial();
-    kprint(htoa(board_serial<<16));
-    kprintln(htoa(board_serial));
+    kprint(strldz(htoa(board_serial << 16), 8));
+    kprintln(strldz(htoa(board_serial), 8));
 
     
     #ifndef NTESTS
-    kprintln("[info] NTESTS disabled. Tests enabled");
+    kprintln("[info] NTESTS removed. Tests enabled");
 
     kprint("[test] random num: 0x");
-    kprintln(htoa(rand()));
+    kprintln(strldz(htoa(rand()), 8));
 
 
-    //uart_puts("[test] blk deivces...");
-    //    if (dev_init() == DEV_OK)
-    //        if (fat_getpartition())
-    //            uart_puts("[OK]\n");
-    //        else uart_puts("FAT partition not found???\n");
-    //    else uart_puts("Failed to init device\n");
+    kprint("[test] blk deivces...");
+    u8 *mbr = kmalloc(512);
+    u64 lba;
+    if (dev_init() == DEV_OK)
+        if((lba = fat_get_partition(mbr))) {
+            kprint("[OK]");
+            kprintln(fat_get_type(mbr) > 0 ? "FAT32" : "FAT16");
+        }
+        else kprintln("[ERR] FAT partition not found");
+    else kprintln("[ERR] Failed to init device");
+    
+    kprintln("[info] tests end");
     #endif
 
     while (1) { wfe(); }

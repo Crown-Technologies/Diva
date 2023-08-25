@@ -35,4 +35,4 @@ run:
 		-kernel bin/kernel-aarch64.img \
 		-serial stdio \
 		-m 1024 \
-		-drive file=data/test.dd,if=sd,format=raw
+		-drive file=data/drive.dd,if=sd,format=raw

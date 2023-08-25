@@ -14,8 +14,7 @@ extern volatile u8 _end;
 #define OFFSET_END   0xffb000    /* 15 MB */
 #define HEAP_END     (1024 * 1024 * 1024 - OFFSET_END)   /* 1024 MB */
 
-#define SECTIONSIZE  (512 * 1024) /* 512KB */
-#define MAX_ALLOC_ALLOWED 5
+#define MAX_ALLOC_ALLOWED 1024
 
 
 struct kalloc_info {
@@ -68,7 +67,7 @@ void kfree(void *va) {
 
     acquire(&kalloc_lk);
 
-    for (u16 i = 0; i < MAX_ALLOC_ALLOWED; i++)
+    for (u16 i = 1; i < MAX_ALLOC_ALLOWED; i++)
         if (va == (void*) kalloc_info[i].addr)
             kalloc_info[i].addr = 0;
 

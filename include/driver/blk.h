@@ -4,3 +4,4 @@
 
 int dev_init();
 int dev_readblk(unsigned int lba, unsigned char *buffer, unsigned int num);
+int dev_writeblk(unsigned char *buffer, unsigned int lba, unsigned int num);

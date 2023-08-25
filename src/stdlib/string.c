@@ -1,6 +1,13 @@
 #include <ntypes.h>
 #include <stdlib/string.h>
 #include <stdlib/mem.h>
+#include <syslib/kmem.h>
+
+
+// One time use buffer
+u8* otub = NULL;
+// TODO Should use user space mem alloc funcs instead of kernel space
+#define realloc_otub(size) kfree(otub);otub=kmalloc(size)
 
 
 unsigned long long strlen(void *str) {
@@ -26,16 +33,25 @@ char* ntoa(int a, unsigned char base) {
 
     do {
         *(--p) = digits[-(an % base)];
-    an /= base;
+        an /= base;
     } while (an);
 
-    if (base == 10 && a < 0) {
+    if (base == 10 && a < 0)
         *(--p) = '-';
-    }
 
     u64 size_used = &buffer[sizeof(buffer)] - p;
-    char* dst = kmalloc(size_used);
-    return memcpy(dst, p, size_used);
+    realloc_otub(size_used);
+    return memcpy(otub, p, size_used);
+}
+
+
+char* strldz(void *str, int n) {
+    int slen = strlen(str);
+    int soff = n - slen;
+    realloc_otub(n);
+    memcpy(otub + soff, str, slen);
+    memset(otub, '0', soff);
+    return (char*) otub;
 }
 
 
