@@ -1,6 +1,3 @@
-#include <stddef.h>
-#include <ntypes.h>
-#include <diva/kernel.h>
 #include <driver/gpio.h>
 #include <driver/mbox.h>
 
