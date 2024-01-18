@@ -2,8 +2,8 @@
 #include <driver/framebuffer.h>
 
 #include <driver/mbox.h>
-#include <stdlib/time.h>
 #include <ntypes.h>
+#include <stdlib/string.h>
 
 
 typedef struct {
@@ -42,12 +42,12 @@ unsigned int width, height, pitch, isrgb;   /* dimensions and channel order */
 unsigned char *fb;                         /* raw frame buffer address */
 
 /**
- * Set screen resolution to 1024x768
+ * Set screen resolution
  */
-void fb_init(FBInfo framebuffer_info)
+void fb_init(unsigned scr_width, unsigned scr_height, unsigned scr_depth)
 {
     /* newer qemu segfaults if we don't wait here a bit */
-    wait_ms(100000);
+    //wait_ms(100000);
 
     mbox[0] = 35*4;
     mbox[1] = MBOX_REQUEST;
@@ -55,14 +55,14 @@ void fb_init(FBInfo framebuffer_info)
     mbox[2] = 0x48003;  //set phy wh
     mbox[3] = 8;
     mbox[4] = 8;
-    mbox[5] = framebuffer_info.width;         //FrameBufferInfo.width
-    mbox[6] = framebuffer_info.height;          //FrameBufferInfo.height
+    mbox[5] = scr_width;         //FrameBufferInfo.width
+    mbox[6] = scr_height;          //FrameBufferInfo.height
 
     mbox[7] = 0x48004;  //set virt wh
     mbox[8] = 8;
     mbox[9] = 8;
-    mbox[10] = framebuffer_info.width;        //FrameBufferInfo.virtual_width
-    mbox[11] = framebuffer_info.height;         //FrameBufferInfo.virtual_height
+    mbox[10] = scr_width;        //FrameBufferInfo.virtual_width
+    mbox[11] = scr_height;         //FrameBufferInfo.virtual_height
 
     mbox[12] = 0x48009; //set virt offset
     mbox[13] = 8;
@@ -73,7 +73,7 @@ void fb_init(FBInfo framebuffer_info)
     mbox[17] = 0x48005; //set depth
     mbox[18] = 4;
     mbox[19] = 4;
-    mbox[20] = framebuffer_info.depth;          //FrameBufferInfo.depth
+    mbox[20] = scr_depth;          //FrameBufferInfo.depth
 
     mbox[21] = 0x48006; //set pixel order
     mbox[22] = 4;
@@ -102,8 +102,15 @@ void fb_init(FBInfo framebuffer_info)
         pitch=mbox[33];         //get number of bytes per line
         isrgb=mbox[24];         //get the actual channel order
         fb=(void*)((unsigned long)mbox[28]);
-    } else
-        uart_puts("Unable to set screen resolution to 1024x768x32\n");
+    } else {
+        uart_puts("Unable to set screen resolution to");
+        uart_puts(itoa(scr_width));
+        uart_puts("x");
+        uart_puts(itoa(scr_height));
+        uart_puts("x");
+        uart_puts(itoa(scr_depth));
+        uart_puts("\n");
+    }
 }
 
 

@@ -11,6 +11,12 @@ u8 flag_clean = 1;
 
 
 void sh_init() {
+    /*FBInfo fb_info;
+    fb_info.width = width;
+    fb_info.height = height;
+    fb_info.depth = depth;
+    fb_init(fb_info);*/ // TODO
+
     buffer = kmalloc(1024 * 16); // 16 KB
     buffer[0] = '\0';
 }

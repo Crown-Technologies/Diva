@@ -34,39 +34,44 @@ void kernel_main(uint64_t dtb_ptr32, uint64_t x1, uint64_t x2, uint64_t x3)
     premmu_alloc_init();
     mmu_init();
 
-    enable_sh(); // Enables framebuffer shell
+    fb_init(800, 600, 32);
+
+    sh_init(); // Enables framebuffer shell
 
     u8 el = 0;
-    kprint("[info] current EL is: ");
-    kprintln((el = get_el()) == 1 ? "1 (kernel mode)" : htoa(el));
+    sh_puts("[info] current EL is: ");
+    sh_puts((el = get_el()) == 1 ? "1 (kernel mode)" : htoa(el));
+    sh_puts("\n");
 
-    kprint("[init] rand...");
-    rand_init(); kprintln("[OK]");
+    sh_puts("[init] rand...");
+    rand_init(); sh_puts("[OK]\n");
     ///// End init
 
-    kprint("[info] board serial number: ");
+    sh_puts("[info] board serial number: ");
     u32 board_serial = get_serial();
-    kprint(strldz(htoa(board_serial << 16), 8));
-    kprintln(strldz(htoa(board_serial), 8));
+    sh_puts(strldz(htoa(board_serial << 16), 8));
+    sh_puts(strldz(htoa(board_serial), 8));
+    sh_puts("\n");
     
     #ifndef NTESTS
-    kprintln("[info] NTESTS removed. Tests enabled");
+    sh_puts("[info] NTESTS removed. Tests enabled\n");
 
-    kprint("[test] random num: 0x");
-    kprintln(strldz(htoa(rand()), 8));
+    sh_puts("[test] random num: 0x");
+    sh_puts(strldz(htoa(rand()), 8));
+    sh_puts("\n");
 
-    kprint("[test] blk devices...");
+    sh_puts("[test] blk devices...");
     u8 *mbr = kmalloc(512);
     u64 lba;
     if (dev_init() == DEV_OK)
         if((lba = fat_get_partition(mbr))) {
-            kprint("[OK]");
-            kprintln(fat_get_type(mbr) > 0 ? "FAT32" : "FAT16");
+            sh_puts("[OK]");
+            sh_puts(fat_get_type(mbr) > 0 ? "FAT32\n" : "FAT16\n");
         }
-        else kprintln("[ERR] FAT partition not found");
-    else kprintln("[ERR] Failed to init device");
+        else sh_puts("[ERR] FAT partition not found\n");
+    else sh_puts("[ERR] Failed to init device\n");
     
-    kprintln("[info] tests end");
+    sh_puts("[info] tests end\n");
     #endif
 
     while (1) { wfe(); }
