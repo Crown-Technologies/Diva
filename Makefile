@@ -12,12 +12,10 @@ OBJS = $(patsubst src/, , $(C_SRCS:.c=.o) $(ASM_SRCS:.S=.o)) tmp/font_psf.o tmp/
 CFLAGS = -Wall -O2 -ffreestanding -nostdlib -nostartfiles -I include/
 LDFLAGS = -nostdlib
 
-FONTS =
-
 all: fonts $(OBJS) kernel-aarch64.img
 
 $(OBJ_DIR)/%.o: %.c %.S
-	mkdir -p $(@D) || true
+	mkdir -p $(@D) >/dev/null 2>/dev/null || true
 	$(CC) $(CFLAGS) -c $< -o $@
 
 fonts:
@@ -25,7 +23,7 @@ fonts:
 	$(LD) -r -b binary -o tmp/font_sfn.o res/fonts/font.sfn
 
 kernel-aarch64.img:
-	mkdir $(TARGET_DIR) || true
+	mkdir $(TARGET_DIR) >/dev/null 2>/dev/null || true
 	$(LD) $(LDFLAGS) $(OBJS) -T src/linker64.ld -o $(TARGET_DIR)/kernel.elf
 	$(OC) -O binary $(TARGET_DIR)/kernel.elf $(TARGET_DIR)/kernel-aarch64.img
 
