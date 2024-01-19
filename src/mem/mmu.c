@@ -1,4 +1,4 @@
-#include "mmu.h"
+#include <syslib/mmu.h>
 
 #include <driver/gpio.h>        // get MMIO_BASE
 #include <driver/uart.h>

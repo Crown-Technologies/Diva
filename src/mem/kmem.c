@@ -4,7 +4,6 @@
 #include <spinlock.h>
 #include <diva/kernel.h>
 #include <stdlib/time.h>
-#include "mmu.h"
 
 #include <driver/uart.h>
 

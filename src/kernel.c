@@ -18,7 +18,7 @@
 #include <stdlib/string.h>
 #include <stdlib/mem.h>
 
-#include "mem/mmu.h"
+#include <syslib/mmu.h>
 
 //#define NTESTS
 
@@ -71,7 +71,7 @@ void kernel_main(uint64_t core_id)
     sh_puts(strldz(htoa(board_serial), 8));
     sh_puts("\n");
 
-    sh_puts("[test] blk devices...");
+    /*sh_puts("[test] blk devices...");
     u8 *mbr = kmalloc(512);
     u64 lba;
     if (dev_init() == DEV_OK)
@@ -80,14 +80,17 @@ void kernel_main(uint64_t core_id)
             sh_puts(fat_get_type(mbr) > 0 ? "FAT32\n" : "FAT16\n");
         }
         else sh_puts("[ERR] FAT partition not found\n");
-    else sh_puts("[ERR] Failed to init device\n");
+    else sh_puts("[ERR] Failed to init device\n");*/
 
     #ifndef NTESTS
     sh_puts("[info] NTESTS removed. Tests enabled\n");
 
-    sh_puts("[test] random num: 0x");
-    sh_puts(strldz(htoa(rand()), 8));
-    sh_puts("\n");
+    sh_puts("[test] random nums:\n");
+    for (int i = 0; i < 10; i++) {
+        sh_puts("0x");
+        sh_puts(strldz(htoa(rand()), 8));
+        sh_puts("\n");
+    }
     
     sh_puts("[info] tests end\n");
     #endif
