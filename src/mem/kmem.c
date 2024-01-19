@@ -76,6 +76,7 @@ void kfree(void *va) {
 
 
 void premmu_alloc_init() {
+    lock_init(&kalloc_lk);
     kalloc_info[0].size = 0;
     kalloc_info[0].addr = HEAP_START;
     for (u16 i = 1; i < MAX_ALLOC_ALLOWED; i++)
