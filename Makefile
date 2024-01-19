@@ -38,4 +38,4 @@ run:
 		-kernel bin/kernel-aarch64.img \
 		-serial stdio \
 		-m 1024 \
-		-drive file=test.dd,if=sd,format=raw
+		-drive file=res/test.dd,if=sd,format=raw
