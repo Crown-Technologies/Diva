@@ -78,12 +78,8 @@ char uart_getc() {
  * Display a string
  */
 void uart_puts(char *s) {
-    while(*s) {
-        /* convert newline to carrige return + newline */
-        if(*s=='\n')
-            uart_send('\r');
+    while(*s)
         uart_send(*s++);
-    }
 }
 
 /**
