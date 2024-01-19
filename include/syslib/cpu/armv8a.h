@@ -9,6 +9,14 @@ static inline unsigned long long cpuid() {
     return mpidr & 0xff;
 }
 
+static inline void nop() {
+    asm volatile("nop");
+}
+
+static inline void sev() {
+    asm volatile("sev");
+}
+
 static inline void wfe() {
     asm volatile("wfe");
 }
