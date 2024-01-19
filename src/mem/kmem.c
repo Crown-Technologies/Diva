@@ -9,9 +9,8 @@
 
 extern volatile u8 _end;
 
-#define HEAP_START   (u64)&_end + 0x100000
-#define OFFSET_END   0xffb000    /* 15 MB */
-#define HEAP_END     (1024 * 1024 * 1024 - OFFSET_END)   /* 1024 MB */
+#define HEAP_START   (u64)&_end + 8
+#define HEAP_END     (1024 * 1024 * 1024 + 256)   /* 1024 MB */
 
 #define MAX_ALLOC_ALLOWED 1024
 
