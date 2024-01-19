@@ -24,7 +24,7 @@ fonts:
 
 kernel-aarch64.img:
 	mkdir $(TARGET_DIR) >/dev/null 2>/dev/null || true
-	$(LD) $(LDFLAGS) $(OBJS) -T src/linker64.ld -o $(TARGET_DIR)/kernel.elf
+	$(LD) $(LDFLAGS) $(OBJS) -T src/linker0.ld -o $(TARGET_DIR)/kernel.elf
 	$(OC) -O binary $(TARGET_DIR)/kernel.elf $(TARGET_DIR)/kernel-aarch64.img
 
 clean:
