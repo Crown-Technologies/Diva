@@ -1,3 +1,3 @@
-# kpurple
+# Diva
 
-OS kernel for aarch64
+OS for aarch64
