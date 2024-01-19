@@ -18,7 +18,7 @@ void rand_init()
 }
 
 /**
- * Return a random number between [min..max]
+ * Return a random number
  */
 unsigned int rand()
 {
