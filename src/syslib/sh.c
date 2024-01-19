@@ -3,19 +3,19 @@
 #include <syslib/kmem.h>
 #include <stdlib/mem.h>
 #include <stdlib/string.h>
+#include <spinlock.h>
 #include <ntypes.h>
 
+struct spinlock sh_lk;
 
 char* buffer;
 u8 flag_clean = 1;
+int y;
 
 
-void sh_init() {
-    /*FBInfo fb_info;
-    fb_info.width = width;
-    fb_info.height = height;
-    fb_info.depth = depth;
-    fb_init(fb_info);*/ // TODO
+void sh_init(int _y) {
+    y = _y;
+    lock_init(&sh_lk);
 
     buffer = kmalloc(1024 * 16); // 16 KB
     buffer[0] = '\0';
@@ -23,7 +23,7 @@ void sh_init() {
 
 void sh_update() {
     sh_clear();
-    fb_print(0, 0, buffer);
+    fb_print(0, y, buffer);
 }
 
 void sh_clear() {
@@ -32,6 +32,7 @@ void sh_clear() {
 }
 
 void sh_puts(char *s) {
+    acquire(&sh_lk);
     u32 slen = strlen(s);
     u32 blen = 0;
     if (!flag_clean)
@@ -40,6 +41,7 @@ void sh_puts(char *s) {
     buffer[blen + slen] = '\0';
     sh_update();
     flag_clean = 0;
+    release(&sh_lk);
 }
 
 
