@@ -28,7 +28,7 @@ kernel-aarch64.img:
 	$(OC) -O binary $(TARGET_DIR)/kernel.elf $(TARGET_DIR)/kernel-aarch64.img
 
 clean:
-	rm $(addprefix $(OBJ_DIR)/, $(OBJS)) >/dev/null 2>/dev/null || true
+	rm $(shell find src -name *.o) 2>/dev/null || true
 	rm tmp/* >/dev/null 2>/dev/null || true
 	rm $(TARGET_DIR)/* >/dev/null 2>/dev/null || true
 
