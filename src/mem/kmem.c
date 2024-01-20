@@ -62,8 +62,10 @@ void kfree(void *va) {
     acquire(&kalloc_lk);
 
     for (struct kalloc_info* ptr = (struct kalloc_info*) HEAP_END; (u64) ptr > bottom_border_heap_info; ptr--)
-        if (va == (void*) ptr->addr)
+        if (va == (void*) ptr->addr) {
             ptr->addr = 0;
+            bottom_border_heap_info++;
+        }
 
     release(&kalloc_lk);
 }
