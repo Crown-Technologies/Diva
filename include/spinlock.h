@@ -1,11 +1,11 @@
 #ifndef SPINLOCK_H
 #define SPINLOCK_H
 
-#include <stdbool.h>
+#include <ntypes.h>
 
 struct spinlock {
-  unsigned char locked;
-  int cpuid;
+  u8 locked;
+  i8 cpuid;
 };
 
 bool holding(struct spinlock *lk);

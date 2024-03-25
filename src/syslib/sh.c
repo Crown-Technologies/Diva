@@ -10,11 +10,8 @@ struct spinlock sh_lk;
 
 char* buffer;
 u8 flag_clean = 1;
-int y;
 
-
-void sh_init(int _y) {
-    y = _y;
+void sh_init() {
     lock_init(&sh_lk);
 
     buffer = kmalloc(1024 * 16); // 16 KB
@@ -23,7 +20,7 @@ void sh_init(int _y) {
 
 void sh_update() {
     sh_clear();
-    fb_print(0, y, buffer);
+    fb_print(0, 0, buffer);
 }
 
 void sh_clear() {

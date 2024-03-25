@@ -1,4 +1,5 @@
-#define CORE(n)#0xd8+(n*8)
+#define CORE0 0xd8
+#define CORES_NUM 64
 
 .section ".text.boot"
 
@@ -6,13 +7,17 @@
 _start:
     // read cpu id
     mrs x0, mpidr_el1
-    and x0, x0, #3
+    and x0, x0, #0xff
     cbnz x0, run
 
     // cpu id == 0
     ldr x0, =run
-    mov x1, CORE(1)
+    mov x1, CORE0+8
+0:
     str x0, [x1]
+    add x1, x1, 8
+    cmp x1, CORE0+(8*CORES_NUM)
+    b.le 0b
 
 run:
     // set top of stack just before our code (stack grows to a lower address per AAPCS64)
@@ -80,45 +85,6 @@ kmain:
 
     bl      kernel_main
 
-halt:
-    wfe
-    b       halt
+    b halt_core
 
-    // important, code has to be properly aligned
-    .align 11
-_vectors:
-    // synchronous
-    .align  7
-    mov     x0, #0
-    mrs     x1, esr_el1
-    mrs     x2, elr_el1
-    mrs     x3, spsr_el1
-    mrs     x4, far_el1
-    b       exc_handler
 
-    // IRQ
-    .align  7
-    mov     x0, #1
-    mrs     x1, esr_el1
-    mrs     x2, elr_el1
-    mrs     x3, spsr_el1
-    mrs     x4, far_el1
-    b       exc_handler
-
-    // FIQ
-    .align  7
-    mov     x0, #2
-    mrs     x1, esr_el1
-    mrs     x2, elr_el1
-    mrs     x3, spsr_el1
-    mrs     x4, far_el1
-    b       exc_handler
-
-    // SError
-    .align  7
-    mov     x0, #3
-    mrs     x1, esr_el1
-    mrs     x2, elr_el1
-    mrs     x3, spsr_el1
-    mrs     x4, far_el1
-    b       exc_handler

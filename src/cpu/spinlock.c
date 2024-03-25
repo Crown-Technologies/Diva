@@ -1,6 +1,6 @@
 #include <spinlock.h>
-#include <syslib/cpu/armv8a.h>
 #include <syslib/proc.h>
+#include <syslib/cpu.h>
 
 void pushcli();
 void popcli();

@@ -7,17 +7,24 @@ OBJ_DIR = tmp
 TARGET_DIR = bin
 
 C_SRCS   = $(shell find src -name *.c)
-ASM_SRCS = $(shell find src -name *.S)
+ASM_SRCS = $(shell find src/cpu/armv8a -name *.S)
+
 C_OBJS   = $(patsubst %.c, $(OBJ_DIR)/%.o, $(C_SRCS))
 ASM_OBJS = $(patsubst %.S, $(OBJ_DIR)/%.o, $(ASM_SRCS))
+
 FONTS_OBJS = tmp/font_psf.o tmp/font_sfn.o
+
 CFLAGS = -Wall -O2 -ffreestanding -nostdlib -nostartfiles -I include/
 LDFLAGS = -nostdlib
 
-all: fonts $(C_OBJS) $(ASM_OBJS)
+# Default
+all: aarch64
+
+aarch64: fonts $(C_OBJS) $(ASM_OBJS)
 	mkdir $(TARGET_DIR) >/dev/null 2>/dev/null || true
 	$(LD) $(LDFLAGS) $(C_OBJS) $(ASM_OBJS) $(FONTS_OBJS) -T src/linker0.ld -o $(TARGET_DIR)/kernel.elf
 	$(OC) -O binary $(TARGET_DIR)/kernel.elf $(TARGET_DIR)/kernel-aarch64.img
+
 
 $(OBJ_DIR)/%.o: %.c
 	mkdir -p $(@D) >/dev/null 2>/dev/null || true

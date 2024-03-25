@@ -1,7 +1,9 @@
 #ifndef MMU
 #define MMU
 
-#define PAGESIZE    4096
+#include <ntypes.h>
 
-void mmu_init();
+u64 mmu_init();
+// extern u64 mmu_init(u64 mmio_base);
+
 #endif
